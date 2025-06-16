@@ -1,19 +1,23 @@
 import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen does not exist.</ThemedText>
-        <Link href="/" style={styles.link}>
-          <ThemedText type="link">Go to home screen!</ThemedText>
+      <Stack.Screen options={{ title: 'Page introuvable' }} />
+      <View style={styles.container}>
+        <Image source={require('@/assets/images/404.png')} style={styles.image} />
+        <Text style={styles.title}>Oups ! Cette page n'existe pas.</Text>
+        <Text style={styles.subtitle}>
+          L'écran que vous cherchez est introuvable ou a été déplacé.
+        </Text>
+
+        <Link href="/(app)/dashboard" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Retour à l'accueil</Text>
+          </TouchableOpacity>
         </Link>
-      </ThemedView>
+      </View>
     </>
   );
 }
@@ -21,12 +25,38 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f8fafc',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    paddingHorizontal: 24,
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  image: {
+    width: 180,
+    height: 180,
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1e3a8a',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#475569',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#2563eb',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
   },
 });
