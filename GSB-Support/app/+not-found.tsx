@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   image: {
-    width: 180,
+    width: 250,
     height: 180,
     marginBottom: 24,
   },

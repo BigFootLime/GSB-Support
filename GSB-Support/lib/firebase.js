@@ -1,25 +1,27 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
- import { getFirestore } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp } from 'firebase/app';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getFirestore } from 'firebase/firestore';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// ✅ Configuration Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCafqjszHBsJLFRhxPZbNoBbJQYc8aeiJ4",
-  authDomain: "gsb-support-a5b46.firebaseapp.com",
-  projectId: "gsb-support-a5b46",
-  storageBucket: "gsb-support-a5b46.firebasestorage.app",
-  messagingSenderId: "804834487280",
-  appId: "1:804834487280:web:8fb95c3ecf08aae4240b35",
-  measurementId: "G-5GN148N2DB"
+  apiKey: 'AIzaSyCafqjszHBsJLFRhxPZbNoBbJQYc8aeiJ4',
+  authDomain: 'gsb-support-a5b46.firebaseapp.com',
+  projectId: 'gsb-support-a5b46',
+  storageBucket: 'gsb-support-a5b46.appspot.com', // ← fix (tu avais .app au lieu de .app**spot**)
+  messagingSenderId: '804834487280',
+  appId: '1:804834487280:web:8fb95c3ecf08aae4240b35',
+  measurementId: 'G-5GN148N2DB',
 };
 
-// Initialize Firebase
+// ✅ Initialisation Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-export const auth = getAuth(app);
+
+// 🔐 Auth avec persistance
+import { getAuth } from 'firebase/auth';
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
+
+// 🗄️ Firestore
 export const db = getFirestore(app);

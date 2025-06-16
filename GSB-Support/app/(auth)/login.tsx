@@ -41,11 +41,11 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <Image source={require('@/assets/images/GSB_Logo_light.png')} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.title}>GSB Support</Text>
 
       {authError !== '' && <Text style={styles.authError}>{authError}</Text>}
 
       <TextInput
+      placeholderTextColor='#171639'
         placeholder="Email"
         style={styles.input}
         autoCapitalize="none"
@@ -55,6 +55,7 @@ export default function LoginScreen() {
       {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
       <TextInput
+        placeholderTextColor='#171639'
         placeholder="Mot de passe"
         style={styles.input}
         secureTextEntry
@@ -82,8 +83,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 120,
-    height: 120,
+    width: 200,
+    height: 200,
     alignSelf: 'center',
     marginBottom: 16,
   },
@@ -101,9 +102,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderColor: '#cbd5e1',
     borderWidth: 1,
+    color: '#171639',
   },
   button: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#171639',
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',
@@ -124,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   link: {
-    color: '#2563eb',
+    color: '#AB82FD',
     textAlign: 'center',
     marginTop: 16,
   },
