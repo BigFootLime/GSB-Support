@@ -39,7 +39,7 @@ export default function RegisterScreen() {
     if (!result.canceled && result.assets.length > 0) {
       const uri = result.assets[0].uri;
       setAvatarUrl(uri);
-      setValue('avatarUrl', uri as any); // Type-cast if not in schema
+      setValue('avatarUrl', uri as any); 
     }
   };
 

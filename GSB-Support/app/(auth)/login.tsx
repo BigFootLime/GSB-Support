@@ -7,7 +7,6 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useState } from 'react';
 
-// 1. Zod schema
 const LoginSchema = z.object({
   email: z.string().email('Email invalide'),
   password: z.string().min(6, 'Minimum 6 caractères'),
@@ -74,7 +73,6 @@ export default function LoginScreen() {
   );
 }
 
-// 2. Basic styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
