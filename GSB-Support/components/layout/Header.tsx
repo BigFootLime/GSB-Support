@@ -43,7 +43,10 @@ export default function Header() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>GSB Support</Text>
+      <Image
+  source={require('@/assets/images/GSB_Logo_light_text.png')}
+  style={styles.logo}
+/>
 
       <View style={styles.avatarWrapper}>
         <TouchableOpacity onPress={toggleMenu}>
@@ -89,6 +92,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     zIndex: 1,
   },
+  logo: {
+  width: "80%",
+  resizeMode: 'contain',
+},
   title: {
     fontSize: 20,
     fontWeight: 'bold',

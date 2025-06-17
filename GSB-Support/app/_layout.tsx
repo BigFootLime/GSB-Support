@@ -3,7 +3,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 
 export default function RootLayout() {
@@ -30,11 +29,9 @@ export default function RootLayout() {
 
   return (
     <>
-    <GestureHandlerRootView>
       <Slot />
-       <Toast />
+      <Toast/>
       <StatusBar style="light" />
-      </GestureHandlerRootView>
     </>
   );
 }

@@ -26,7 +26,7 @@ export default function AppLayout() {
             ),
           }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
           name="tickets/index"
           options={{
             title: 'Tickets',
@@ -34,8 +34,8 @@ export default function AppLayout() {
               <Ionicons name="document-text-outline" size={size} color={color} />
             ),
           }}
-        />
-        <Tabs.Screen
+        /> */}
+        {/* <Tabs.Screen
           name="profile"
           options={{
             title: 'Profil',
@@ -43,7 +43,7 @@ export default function AppLayout() {
               <Ionicons name="person-outline" size={size} color={color} />
             ),
           }}
-        />
+        /> */}
       </Tabs>
 
       <StatusBar style="dark" />

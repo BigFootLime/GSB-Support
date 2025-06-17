@@ -38,8 +38,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   cardNumber: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#0f172a',
+    color: '#ab82fd',
+    marginTop: 4,
   },
 });

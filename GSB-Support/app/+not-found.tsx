@@ -12,7 +12,7 @@ export default function NotFoundScreen() {
           L'écran que vous cherchez est introuvable ou a été déplacé.
         </Text>
 
-        <Link href="/(app)/dashboard" asChild>
+        <Link href="/(tabs)/dashboard" asChild>
           <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Retour à l'accueil</Text>
           </TouchableOpacity>
