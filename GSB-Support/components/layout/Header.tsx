@@ -10,10 +10,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useRef, useState } from 'react';
+import { router } from 'expo-router';
 
 export default function Header() {
   const { user, logout } = useAuth();
-
   const [showMenu, setShowMenu] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -36,6 +36,11 @@ export default function Header() {
     }
   };
 
+  const goToProfile = () => {
+    setShowMenu(false); // Fermer le menu avant navigation
+    router.push('/profile');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>GSB Support</Text>
@@ -54,6 +59,12 @@ export default function Header() {
         {showMenu && (
           <Animated.View style={[styles.dropdownMenu, { opacity: fadeAnim }]}>
             <Text style={styles.userEmail}>{user?.email}</Text>
+
+            <TouchableOpacity style={styles.menuItem} onPress={goToProfile}>
+              <Ionicons name="settings-outline" size={18} color="#334155" style={styles.menuIcon} />
+              <Text style={styles.menuText}>Profil</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.logoutButton} onPress={logout}>
               <Text style={styles.logoutText}>Déconnecter</Text>
             </TouchableOpacity>
@@ -112,6 +123,19 @@ const styles = StyleSheet.create({
     color: '#1e293b',
     marginBottom: 8,
     fontSize: 14,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+  menuIcon: {
+    marginRight: 8,
+  },
+  menuText: {
+    fontSize: 14,
+    color: '#334155',
   },
   logoutButton: {
     paddingVertical: 8,
