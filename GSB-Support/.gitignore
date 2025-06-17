@@ -3,6 +3,8 @@
 # dependencies
 node_modules/
 
+
+
 # Expo
 .expo/
 dist/
@@ -37,3 +39,7 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Ignorer le fichier de configuration Firebase local
+lib/firebase.js
+

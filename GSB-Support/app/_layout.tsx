@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const { user, loading } = useAuth();
@@ -28,8 +29,10 @@ export default function RootLayout() {
 
   return (
     <>
+    <GestureHandlerRootView>
       <Slot />
       <StatusBar style="light" />
+      </GestureHandlerRootView>
     </>
   );
 }

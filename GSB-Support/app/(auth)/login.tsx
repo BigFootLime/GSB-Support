@@ -1,11 +1,13 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useForm } from 'react-hook-form';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useState } from 'react';
+import { CustomTextInput } from '@/components/ui/Input';
+import { CustomButton } from '@/components/ui/Button';
 
 const LoginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -18,9 +20,8 @@ export default function LoginScreen() {
   const router = useRouter();
   const [authError, setAuthError] = useState('');
   const {
-    register,
+    control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(LoginSchema),
@@ -32,8 +33,14 @@ export default function LoginScreen() {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       router.replace('/(app)/dashboard');
     } catch (err: any) {
-      console.error(err);
-      setAuthError('Email ou mot de passe incorrect');
+      console.error(err.code);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setAuthError('Email ou mot de passe incorrect.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setAuthError("Trop de tentatives. Réessaie plus tard.");
+      } else {
+        setAuthError("Une erreur s'est produite. Réessaie.");
+      }
     }
   };
 
@@ -43,32 +50,41 @@ export default function LoginScreen() {
 
       {authError !== '' && <Text style={styles.authError}>{authError}</Text>}
 
-      <TextInput
-      placeholderTextColor='#171639'
-        placeholder="Email"
-        style={styles.input}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        onChangeText={(text) => setValue('email', text)}
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { value, onChange } }) => (
+          <CustomTextInput
+            label="Email"
+            value={value}
+            onChangeText={onChange}
+            placeholder="exemple@gsb.fr"
+            keyboardType="email-address"
+            error={errors.email?.message}
+          />
+        )}
       />
-      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
-      <TextInput
-        placeholderTextColor='#171639'
-        placeholder="Mot de passe"
-        style={styles.input}
-        secureTextEntry
-        onChangeText={(text) => setValue('password', text)}
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { value, onChange } }) => (
+          <CustomTextInput
+            label="Mot de passe"
+            value={value}
+            onChangeText={onChange}
+            placeholder="******"
+            secureTextEntry
+            error={errors.password?.message}
+          />
+        )}
       />
-      {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Se connecter</Text>
-      </TouchableOpacity>
+      <CustomButton title="Se connecter" onPress={handleSubmit(onSubmit)} />
 
-      <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-        <Text style={styles.link}>Pas encore de compte ? S'inscrire</Text>
-      </TouchableOpacity>
+      <Text style={styles.link} onPress={() => router.push('/(auth)/register')}>
+        Pas encore de compte ? S'inscrire
+      </Text>
     </View>
   );
 }
@@ -86,42 +102,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 16,
   },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 32,
-    fontWeight: 'bold',
-    color: '#1e293b',
-  },
-  input: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderColor: '#cbd5e1',
-    borderWidth: 1,
-    color: '#171639',
-  },
-  button: {
-    backgroundColor: '#171639',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  error: {
-    color: '#ef4444',
-    fontSize: 12,
-    marginBottom: 8,
-  },
   authError: {
     color: '#b91c1c',
     textAlign: 'center',
     marginBottom: 16,
+    fontWeight: 'bold',
   },
   link: {
     color: '#AB82FD',

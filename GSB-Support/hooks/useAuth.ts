@@ -1,18 +1,36 @@
-import { useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
+import { useEffect, useState } from 'react';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const docRef = doc(db, 'users', firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          setUser({ ...firebaseUser, ...userData });
+        } else {
+          setUser(firebaseUser);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
+
     return unsubscribe;
   }, []);
 
-  return { user, loading, signOut: () => signOut(auth) };
+  const logout = async () => {
+    await signOut(auth);
+    setUser(null);
+  };
+
+  return { user, loading, logout };
 };
