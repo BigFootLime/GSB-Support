@@ -5,16 +5,16 @@ import { getFirestore } from 'firebase/firestore';
 
 // Configuration Firebase
 const firebaseConfig = {
-  apiKey: 'AIzaSyCafqjszHBsJLFRhxPZbNoBbJQYc8aeiJ4',
-  authDomain: 'gsb-support-a5b46.firebaseapp.com',
-  projectId: 'gsb-support-a5b46',
-  storageBucket: 'gsb-support-a5b46.appspot.com', 
-  messagingSenderId: '804834487280',
-  appId: '1:804834487280:web:8fb95c3ecf08aae4240b35',
-  measurementId: 'G-5GN148N2DB',
+  apiKey: 'your-api-key-here',
+  authDomain: 'your-auth-domain-here',
+  projectId: 'your-project-id-here',
+  storageBucket: 'your-storage-bucket-here',
+  messagingSenderId: 'messaging-sender-id-here',
+  appId: 'api-id-here',
+  measurementId: 'measurement-id-here',
 };
 
-//  Initialisation Firebase
+// Initialisation Firebase
 const app = initializeApp(firebaseConfig);
 
 // Auth avec persistance
@@ -23,5 +23,5 @@ export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
-//Firestore
+// Firestore
 export const db = getFirestore(app);
