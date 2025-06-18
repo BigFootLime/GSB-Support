@@ -8,37 +8,40 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { useTickets } from '@/hooks/useTickets';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useState } from 'react';
-import { updateTicketStatus, updateTicketPriority } from '@/hooks/useTicketDetails';
 import { Controller, useForm } from 'react-hook-form';
+import { Ionicons } from '@expo/vector-icons';
+
+import { useTickets } from '@/hooks/useTickets';
+import { updateTicketStatus, updateTicketPriority } from '@/hooks/useTicketDetails';
+
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CustomPickerWithBadge } from '@/components/ui/CustomPicker';
 import Header from '@/components/layout/Header';
-import { Ionicons } from '@expo/vector-icons';
+import { Ticket } from '@/types/ticket'; // si tu as un fichier types
 
 export default function TicketDetail() {
   const { id } = useLocalSearchParams();
   const { tickets, refetchTickets } = useTickets();
 
   const validId = typeof id === 'string' ? id : id?.[0] ?? '';
-  const ticket = tickets.find((t) => t.id === validId);
+  const ticket: Ticket | undefined = tickets.find((t) => t.id === validId);
 
   const [updating, setUpdating] = useState(false);
-  const [status, setStatus] = useState(ticket?.status || 'new');
-  const [priority, setPriority] = useState(ticket?.priority || 'low');
+  const [status, setStatus] = useState<Ticket['status']>(ticket?.status ?? 'new');
+  const [priority, setPriority] = useState<Ticket['priority']>(ticket?.priority ?? 'low');
 
   const {
     control,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      status: ticket?.status || 'new',
-      priority: ticket?.priority || 'low',
+      status: status,
+      priority: priority,
     },
   });
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: Ticket['status']) => {
     if (!ticket) return;
     try {
       setUpdating(true);
@@ -52,7 +55,7 @@ export default function TicketDetail() {
     }
   };
 
-  const handlePriorityChange = async (newPriority: string) => {
+  const handlePriorityChange = async (newPriority: Ticket['priority']) => {
     if (!ticket) return;
     try {
       setUpdating(true);
@@ -80,125 +83,133 @@ export default function TicketDetail() {
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Détail du ticket" showBack />
-
       <ScrollView contentContainerStyle={{ padding: 24 }}>
         <Text style={styles.title}>{ticket.title}</Text>
 
-        <View style={styles.row}>
-          <Ionicons name="document-text-outline" size={18} color="#64748b" />
-          <Text style={styles.label}> Description :</Text>
-        </View>
-        <Text style={styles.description}>{ticket.description}</Text>
+        <View style={styles.card}>
+          {/* Description */}
+          <View style={styles.row}>
+            <Ionicons name="document-text-outline" size={18} color="#64748b" />
+            <Text style={styles.label}> Description :</Text>
+          </View>
+          <Text style={styles.description}>{ticket.description}</Text>
 
-        <View style={styles.row}>
-          <Ionicons name="list-outline" size={18} color="#64748b" />
-          <Text style={styles.label}> Statut actuel :</Text>
-        </View>
-        <StatusBadge status={status} />
+          {/* Statut */}
+          <View style={styles.row}>
+            <Ionicons name="list-outline" size={18} color="#64748b" />
+            <Text style={styles.label}> Statut actuel :</Text>
+          </View>
+          <StatusBadge status={status} />
 
-        <Controller
-          control={control}
-          name="status"
-          render={({ field: { value, onChange } }) => (
-            <CustomPickerWithBadge
-              label="Changer le statut"
-              value={value}
-              onChange={(val) => {
-                onChange(val);
-                handleStatusChange(val);
-              }}
-              options={[
-                { label: 'Nouveau', value: 'new' },
-                { label: 'Assigné', value: 'assigned' },
-                { label: 'En cours', value: 'in-progress' },
-                { label: 'Résolu', value: 'resolved' },
-                { label: 'Clôturé', value: 'closed' },
-              ]}
-              showBadge
-              badgeColors={{
-                new: '#3b82f6',
-                assigned: '#eab308',
-                'in-progress': '#8b5cf6',
-                resolved: '#10b981',
-                closed: '#64748b',
-              }}
-              error={errors.status?.message}
-            />
+          <Controller
+            control={control}
+            name="status"
+            render={({ field: { value, onChange } }) => (
+              <CustomPickerWithBadge
+                label="Changer le statut"
+                value={value}
+                onChange={(val) => {
+                  onChange(val as Ticket['status']);
+                  handleStatusChange(val as Ticket['status']);
+                }}
+                options={[
+                  { label: 'Nouveau', value: 'new' },
+                  { label: 'Assigné', value: 'assigned' },
+                  { label: 'En cours', value: 'in-progress' },
+                  { label: 'Résolu', value: 'resolved' },
+                  { label: 'Clôturé', value: 'closed' },
+                ]}
+                showBadge
+                badgeColors={{
+                  new: '#3b82f6',
+                  assigned: '#eab308',
+                  'in-progress': '#8b5cf6',
+                  resolved: '#10b981',
+                  closed: '#64748b',
+                }}
+                error={errors.status?.message}
+              />
+            )}
+          />
+
+          {/* Priorité */}
+          <View style={styles.row}>
+            <Ionicons name="alert-circle-outline" size={18} color="#64748b" />
+            <Text style={styles.label}> Priorité :</Text>
+          </View>
+          <Text style={styles.value}>{priority}</Text>
+
+          <Controller
+            control={control}
+            name="priority"
+            render={({ field: { value, onChange } }) => (
+              <CustomPickerWithBadge
+                label="Changer la priorité"
+                value={value}
+                onChange={(val) => {
+                  onChange(val as Ticket['priority']);
+                  handlePriorityChange(val as Ticket['priority']);
+                }}
+                options={[
+                  { label: 'Faible', value: 'low' },
+                  { label: 'Moyenne', value: 'medium' },
+                  { label: 'Haute', value: 'high' },
+                  { label: 'Critique', value: 'critical' },
+                ]}
+                showBadge
+                badgeColors={{
+                  low: '#10b981',
+                  medium: '#facc15',
+                  high: '#f97316',
+                  critical: '#ef4444',
+                }}
+                error={errors.priority?.message}
+              />
+            )}
+          />
+
+          {/* Catégorie */}
+          <View style={styles.row}>
+            <Ionicons name="pricetags-outline" size={18} color="#64748b" />
+            <Text style={styles.label}> Catégorie :</Text>
+          </View>
+          <Text style={styles.value}>{ticket.category}</Text>
+
+          {/* Date limite */}
+          <View style={styles.row}>
+            <Ionicons name="calendar-outline" size={18} color="#64748b" />
+            <Text style={styles.label}> Date limite :</Text>
+          </View>
+          <Text style={styles.value}>
+            {ticket.dueDate
+              ? new Date(ticket.dueDate.seconds * 1000).toLocaleDateString()
+              : 'Aucune'}
+          </Text>
+
+          {/* Lieu */}
+          {ticket.location && (
+            <>
+              <View style={styles.row}>
+                <Ionicons name="location-outline" size={18} color="#64748b" />
+                <Text style={styles.label}> Lieu :</Text>
+              </View>
+              <Text style={styles.value}>{ticket.location}</Text>
+            </>
           )}
-        />
 
-        <View style={styles.row}>
-          <Ionicons name="alert-circle-outline" size={18} color="#64748b" />
-          <Text style={styles.label}> Priorité :</Text>
-        </View>
-        <Text style={styles.value}>{priority}</Text>
-
-        <Controller
-          control={control}
-          name="priority"
-          render={({ field: { value, onChange } }) => (
-            <CustomPickerWithBadge
-              label="Changer la priorité"
-              value={value}
-              onChange={(val) => {
-                onChange(val);
-                handlePriorityChange(val);
-              }}
-              options={[
-                { label: 'Faible', value: 'low' },
-                { label: 'Moyenne', value: 'medium' },
-                { label: 'Haute', value: 'high' },
-                { label: 'Critique', value: 'critical' },
-              ]}
-              showBadge
-              badgeColors={{
-                low: '#10b981',
-                medium: '#facc15',
-                high: '#f97316',
-                critical: '#ef4444',
-              }}
-              error={errors.priority?.message}
-            />
+          {/* Appareil */}
+          {ticket.deviceInfo?.model && (
+            <>
+              <View style={styles.row}>
+                <Ionicons name="hardware-chip-outline" size={18} color="#64748b" />
+                <Text style={styles.label}> Appareil :</Text>
+              </View>
+              <Text style={styles.value}>
+                {ticket.deviceInfo.model} ({ticket.deviceInfo.os})
+              </Text>
+            </>
           )}
-        />
-
-        <View style={styles.row}>
-          <Ionicons name="pricetags-outline" size={18} color="#64748b" />
-          <Text style={styles.label}> Catégorie :</Text>
         </View>
-        <Text style={styles.value}>{ticket.category}</Text>
-
-        <View style={styles.row}>
-          <Ionicons name="calendar-outline" size={18} color="#64748b" />
-          <Text style={styles.label}> Date limite :</Text>
-        </View>
-        <Text style={styles.value}>
-          {ticket.dueDate
-            ? new Date(ticket.dueDate.seconds * 1000).toLocaleDateString()
-            : 'Aucune'}
-        </Text>
-
-        {ticket.location && (
-          <>
-            <View style={styles.row}>
-              <Ionicons name="location-outline" size={18} color="#64748b" />
-              <Text style={styles.label}> Lieu :</Text>
-            </View>
-            <Text style={styles.value}>{ticket.location}</Text>
-          </>
-        )}
-
-        {ticket.deviceInfo?.model && (
-          <>
-            <View style={styles.row}>
-              <Ionicons name="hardware-chip-outline" size={18} color="#64748b" />
-              <Text style={styles.label}> Appareil :</Text>
-            </View>
-            <Text style={styles.value}>
-              {ticket.deviceInfo.model} ({ticket.deviceInfo.os})
-            </Text>
-          </>
-        )}
 
         {updating && <ActivityIndicator style={{ marginTop: 24 }} />}
       </ScrollView>
@@ -207,7 +218,18 @@ export default function TicketDetail() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: { flex: 1, backgroundColor: '#f1f5f9' },
+  card: {
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 24, fontWeight: 'bold', color: '#1e293b', marginBottom: 16 },
   description: { fontSize: 16, color: '#334155', marginBottom: 20 },

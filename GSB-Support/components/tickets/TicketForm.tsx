@@ -11,6 +11,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Toast from 'react-native-toast-message';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+
 
 const TicketSchema = z.object({
   title: z.string().min(3, 'Titre requis'),
@@ -25,16 +31,22 @@ const TicketSchema = z.object({
   model: z.string().optional(),
   os: z.enum(['android', 'ios', 'windows', 'macos', 'linux']),
   version: z.string().optional(),
-  assignedTo: z.string().optional(),
   dueDate: z.date().optional(),
 });
 
 type TicketFormType = z.infer<typeof TicketSchema>;
 
+export function TicketForm({
+  onClose,
+  hideForm,
+  onSuccessConfirm,
+}: {
+  onClose: () => void;
+  hideForm: () => void;
+  onSuccessConfirm: () => void;
+}) {
+  const { user } = useAuth();
 
-export function TicketForm({ onClose }: { onClose: () => void }) {
-
-    const { user } = useAuth();
   const {
     control,
     handleSubmit,
@@ -50,55 +62,59 @@ export function TicketForm({ onClose }: { onClose: () => void }) {
       model: '',
       os: 'android',
       version: '',
-       assignedTo: user?.uid || '',
       dueDate: undefined,
     },
   });
 
   const onSubmit = async (data: TicketFormType) => {
     Toast.show({
-  type: 'info',
-  text1: '🔄 Envoi du ticket...',
-});
-  const ticketToCreate = {
-    title: data.title,
-    description: data.description,
-    priority: data.priority,
-    category: data.category,
-    location: data.location,
-    assignedTo: user?.uid || '',
-    createdBy: user?.uid || '',
-    status: 'new',
-    createdAt: serverTimestamp(),
-    dueDate: data.dueDate ?? null,
-    deviceInfo: {
-      model: data.model,
-      os: data.os,
-      version: data.version,
-    },
+      type: 'info',
+      text1: '🔄 Envoi du ticket...',
+    });
+
+    const ticketToCreate = {
+      title: data.title,
+      description: data.description,
+      priority: data.priority,
+      category: data.category,
+      location: data.location,
+      assignedTo: user?.uid || '',
+      createdBy: user?.uid || '',
+      status: 'new',
+      createdAt: serverTimestamp(),
+      dueDate: data.dueDate ?? null,
+      deviceInfo: {
+        model: data.model,
+        os: data.os,
+        version: data.version,
+      },
+    };
+
+    try {
+      await addDoc(collection(db, 'tickets'), ticketToCreate);
+      hideForm();
+      onSuccessConfirm();
+    } catch (err) {
+      console.error(err);
+      Toast.show({
+        type: 'error',
+        text1: 'Erreur',
+        text2: "Impossible d'enregistrer le ticket.",
+      });
+    }
   };
 
-   try {
-    await addDoc(collection(db, 'tickets'), ticketToCreate);
-
-    Toast.show({
-      type: 'success',
-      text1: 'Ticket créé',
-      text2: 'Le ticket a bien été enregistré.',
-    });
-
-     onClose();
-  } catch (err) {
-    console.error(err);
-    Toast.show({
-      type: 'error',
-      text1: 'Erreur',
-      text2: "Impossible d'enregistrer le ticket.",
-    });
-  }
-};
-
   return (
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    style={{ flex: 1 }}
+    keyboardVerticalOffset={80} // ajuste selon ta nav bar
+  >
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 4 }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
     <View style={{ gap: 10 }}>
       <Controller
         control={control}
@@ -224,20 +240,15 @@ export function TicketForm({ onClose }: { onClose: () => void }) {
           <CustomTextInput label="Version" value={value} onChangeText={onChange} />
         )}
       />
-       <Controller
-        control={control}
-        name="assignedTo"
-        render={({ field: { value, onChange } }) => (
-          <CustomTextInput label="Assigné à" value={user?.fullName || 'aucun utilisateur'}  />
-        )}
-      />
 
       <Controller
         control={control}
         name="dueDate"
         render={({ field: { value, onChange } }) => (
           <View>
-            <Text style={{ marginBottom: 4, fontWeight: '500', color: '#1e293b' }}>Date d'échéance</Text>
+            <Text style={{ marginBottom: 4, fontWeight: '500', color: '#1e293b' }}>
+              Date d'échéance
+            </Text>
             <DateTimePicker
               value={value || new Date()}
               mode="date"
@@ -249,13 +260,12 @@ export function TicketForm({ onClose }: { onClose: () => void }) {
       />
 
       <CustomButton
-  title="Créer le ticket"
-  onPress={() =>
-    handleSubmit(onSubmit, () => {
-    })()
-  }
-/>
+        title="Créer le ticket"
+        onPress={handleSubmit(onSubmit)}
+      />
     </View>
+    </ScrollView>
+  </KeyboardAvoidingView>
   );
 }
 

@@ -10,7 +10,7 @@ import {
   Platform,
   ActionSheetIOS,
 } from 'react-native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { TicketForm } from '@/components/tickets/TicketForm';
 import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +18,9 @@ import { useTickets } from '@/hooks/useTickets';
 import { CustomCard } from '@/components/ui/Card';
 import Header from '@/components/layout/Header';
 import { Ionicons } from '@expo/vector-icons';
+import { Animated, Easing } from 'react-native';
+import { DashboardStats } from '@/components/ui/DashboardStats';
+
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -26,6 +29,9 @@ export default function DashboardScreen() {
   const { tickets = [] } = useTickets();
   const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
+  const [formVisible, setFormVisible] = useState(true);
+const [confirmationVisible, setConfirmationVisible] = useState(false);
+const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const newTickets = tickets.filter((t) => t.status === 'new');
   const inProgressTickets = tickets.filter((t) => t.status === 'in-progress');
@@ -69,11 +75,33 @@ export default function DashboardScreen() {
             />
           </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.info}>
-              D’autres stats seront bientôt disponibles.
-            </Text>
-          </View>
+          <DashboardStats total={tickets.length} resolved={resolvedTickets.length} />
+          <View style={{ width: '100%', marginTop: 24 }}>
+  <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: '#1e293b' }}>
+    Activité récente
+  </Text>
+
+  {tickets.slice(0, 3).map((ticket) => (
+    <Pressable
+      key={ticket.id}
+      onPress={() => router.push(`/tickets/${ticket.id}`)}
+      style={{
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 8,
+        elevation: 2,
+      }}
+    >
+      <Text style={{ fontSize: 16, fontWeight: '600', color: '#2563eb' }}>
+        {ticket.title}
+      </Text>
+      <Text style={{ fontSize: 14, color: '#475569' }}>
+        Priorité: {ticket.priority} · Statut: {ticket.status}
+      </Text>
+    </Pressable>
+  ))}
+</View>
         </ScrollView>
       </SafeAreaView>
 
@@ -107,11 +135,12 @@ export default function DashboardScreen() {
         statusBarTranslucent
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalWrapper}>
+       
           <Pressable
             style={styles.backdrop}
             onPress={() => setModalVisible(false)}
           />
+           <View style={styles.modalWrapper}>
           <View style={styles.bottomSheet}>
             <View style={styles.modalHandle} />
             <ScrollView
@@ -119,7 +148,29 @@ export default function DashboardScreen() {
               keyboardShouldPersistTaps="handled"
             >
               <Text style={styles.modalTitle}>Créer un nouveau ticket</Text>
-              <TicketForm onClose={() => setModalVisible(false)} />
+                {formVisible && !confirmationVisible && (
+                <TicketForm
+                  onClose={() => setModalVisible(false)}
+                  hideForm={() => setFormVisible(false)}
+                  onSuccessConfirm={() => {
+                    setConfirmationVisible(true);
+                    setTimeout(() => {
+                      setConfirmationVisible(false);
+                      setFormVisible(true);
+                      setModalVisible(false);
+                    }, 1800);
+                  }}
+                />
+              )}
+
+              {confirmationVisible && (
+                <View style={{ alignItems: 'center', marginTop: 40 }}>
+                  <Ionicons name="checkmark-circle-outline" size={60} color="#10b981" />
+                  <Text style={{ fontSize: 18, fontWeight: '600', color: '#10b981', marginTop: 12 }}>
+                    Ticket ajouté !
+                  </Text>
+                </View>
+              )}
               <Pressable
                 onPress={() => setModalVisible(false)}
                 style={styles.closeBtn}
@@ -176,7 +227,7 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 30, // Adjust to float just above tab bar
+    bottom: 30, 
     right: 30,
     width: 60,
     height: 60,

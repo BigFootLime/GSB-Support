@@ -78,7 +78,7 @@ export default function RegisterScreen() {
         lastLogin: serverTimestamp(),
       });
 
-      router.replace('/(app)/dashboard');
+      router.replace('/dashboard');
     } catch (err: any) {
       console.error(err);
       setAuthError("Erreur lors de l’inscription. Vérifiez les données.");
