@@ -9,6 +9,7 @@ interface CustomTextInputProps {
   secureTextEntry?: boolean;
   error?: string;
   keyboardType?: 'default' | 'email-address' | 'numeric';
+  editable?: boolean;
 }
 
 export const CustomTextInput: React.FC<CustomTextInputProps> = ({
@@ -19,6 +20,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
   secureTextEntry = false,
   error,
   keyboardType = 'default',
+   editable = true,
 }) => {
   return (
     <View style={{ marginBottom: 12 }}>
@@ -30,6 +32,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
+         editable={editable}
         placeholderTextColor="#94a3b8"
       />
       {error && <Text style={styles.error}>{error}</Text>}

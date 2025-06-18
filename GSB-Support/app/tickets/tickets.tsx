@@ -13,14 +13,16 @@ import { useTickets } from '@/hooks/useTickets';
 import { Ionicons } from '@expo/vector-icons';
 import { Badge } from '@/components/ui/Badge';
 import Header from '@/components/layout/Header';
-import { Stack, useRouter,useLocalSearchParams  } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { CustomPickerWithBadge } from '@/components/ui/CustomPicker';
+import { Swipeable } from 'react-native-gesture-handler';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function NewTicketsScreen() {
   const { tickets } = useTickets();
-  const newTickets = tickets.filter((t) => t.status === 'new');
-  const router = useRouter();
   const { status } = useLocalSearchParams();
+  const router = useRouter();
 
   const [priority, setPriority] = useState('');
   const [sortDate, setSortDate] = useState('desc');
@@ -28,21 +30,39 @@ export default function NewTicketsScreen() {
   const [filterVisible, setFilterVisible] = useState(false);
 
   const filteredByStatus = status
-  ? tickets.filter((t) => t.status === status)
-  : tickets;
+    ? tickets.filter((t) => t.status === status)
+    : tickets;
 
   const filteredTickets = filteredByStatus
-  .filter((t) =>
-    search.trim() !== ''
-      ? t.title.toLowerCase().includes(search.toLowerCase())
-      : true
-  )
-  .filter((t) => (priority ? t.priority === priority : true))
-  .sort((a, b) =>
-    sortDate === 'desc'
-      ? b.createdAt.seconds - a.createdAt.seconds
-      : a.createdAt.seconds - b.createdAt.seconds
-  );
+    .filter((t) =>
+      search.trim() !== ''
+        ? t.title.toLowerCase().includes(search.toLowerCase())
+        : true
+    )
+    .filter((t) => (priority ? t.priority === priority : true))
+    .sort((a, b) =>
+      sortDate === 'desc'
+        ? b.createdAt.seconds - a.createdAt.seconds
+        : a.createdAt.seconds - b.createdAt.seconds
+    );
+
+  const handleArchive = async (id: string) => {
+  try {
+    await updateDoc(doc(db, 'tickets', id), {
+      status: 'archived',
+    });
+  } catch (error) {
+    console.error('Erreur archivage ticket :', error);
+  }
+};
+
+
+  const renderRightActions = (onArchive: () => void) => (
+  <Pressable style={styles.swipeAction} onPress={onArchive}>
+    <Ionicons name="archive-outline" size={28} color="#fff" />
+  </Pressable>
+);
+
 
   const handleTicketPress = (id: string) => {
     router.push({
@@ -56,8 +76,6 @@ export default function NewTicketsScreen() {
       <Stack.Screen options={{ title: 'Tickets' }} />
       <Header title={`Tickets ${status || 'Nouveaux'}`} showBack />
 
-
-      {/* Barre de recherche + filtre */}
       <View style={styles.searchBar}>
         <TextInput
           style={styles.input}
@@ -79,23 +97,26 @@ export default function NewTicketsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
-            <Pressable onPress={() => handleTicketPress(item.id)}>
-              <View style={styles.ticketCard}>
-                <View style={styles.header}>
-                  <Text style={styles.ticketTitle}>{item.title}</Text>
-                  <Badge priority={item.priority} />
+           <Swipeable renderRightActions={() => renderRightActions(() => handleArchive(item.id))}>
+
+              <Pressable onPress={() => handleTicketPress(item.id)}>
+                <View style={styles.ticketCard}>
+                  <View style={styles.header}>
+                    <Text style={styles.ticketTitle}>{item.title}</Text>
+                    <Badge priority={item.priority} />
+                  </View>
+                  <Text style={styles.description}>{item.description}</Text>
+                  <View style={styles.meta}>
+                    <Ionicons name="calendar-outline" size={16} color="#64748b" />
+                    <Text style={styles.metaText}>
+                      {item.dueDate
+                        ? new Date(item.dueDate.seconds * 1000).toLocaleDateString()
+                        : 'Aucune date'}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={styles.description}>{item.description}</Text>
-                <View style={styles.meta}>
-                  <Ionicons name="calendar-outline" size={16} color="#64748b" />
-                  <Text style={styles.metaText}>
-                    {item.dueDate
-                      ? new Date(item.dueDate.seconds * 1000).toLocaleDateString()
-                      : 'Aucune date'}
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
+              </Pressable>
+            </Swipeable>
           )}
         />
       ) : (
@@ -246,5 +267,13 @@ const styles = StyleSheet.create({
   closeText: {
     color: '#2563eb',
     fontWeight: 'bold',
+  },
+  swipeAction: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 12,
+    marginBottom: 16,
   },
 });

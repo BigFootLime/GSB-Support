@@ -1,14 +1,24 @@
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Ticket } from '@/types/ticket';
+import { useAuth } from './useAuth';
+
 export function useTickets() {
+  const { user } = useAuth();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'));
+    if (!user?.uid) return; 
+
+    const q = query(
+      collection(db, 'tickets'),
+      where('createdBy', '==', user.uid), 
+      orderBy('createdAt', 'desc')
+    );
+
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
@@ -27,7 +37,7 @@ export function useTickets() {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [user?.uid]); 
 
   return { tickets, loading, error };
 }
