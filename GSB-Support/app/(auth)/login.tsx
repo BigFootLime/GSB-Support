@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,6 +19,7 @@ type LoginForm = z.infer<typeof LoginSchema>;
 export default function LoginScreen() {
   const router = useRouter();
   const [authError, setAuthError] = useState('');
+
   const {
     control,
     handleSubmit,
@@ -30,23 +31,34 @@ export default function LoginScreen() {
   const onSubmit = async (data: LoginForm) => {
     setAuthError('');
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
-      router.replace('/(app)/dashboard');
+      await signInWithEmailAndPassword(auth, data.email.trim(), data.password);
+      router.replace('/dashboard');
     } catch (err: any) {
-      console.error(err.code);
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setAuthError('Email ou mot de passe incorrect.');
-      } else if (err.code === 'auth/too-many-requests') {
-        setAuthError("Trop de tentatives. Réessaie plus tard.");
-      } else {
-        setAuthError("Une erreur s'est produite. Réessaie.");
+      console.error('Firebase Auth Error:', err.code);
+      switch (err.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          setAuthError('Email ou mot de passe incorrect.');
+          break;
+        case 'auth/too-many-requests':
+          setAuthError("Trop de tentatives. Réessaie plus tard.");
+          break;
+        default:
+          setAuthError("Une erreur s'est produite. Réessaie.");
       }
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('@/assets/images/GSB_Logo_light.png')} style={styles.logo} resizeMode="contain" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.container}
+    >
+      <Image
+        source={require('@/assets/images/GSB_Logo_light.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
 
       {authError !== '' && <Text style={styles.authError}>{authError}</Text>}
 
@@ -60,6 +72,7 @@ export default function LoginScreen() {
             onChangeText={onChange}
             placeholder="exemple@gsb.fr"
             keyboardType="email-address"
+           
             error={errors.email?.message}
           />
         )}
@@ -82,10 +95,10 @@ export default function LoginScreen() {
 
       <CustomButton title="Se connecter" onPress={handleSubmit(onSubmit)} />
 
-      <Text style={styles.link} onPress={() => router.push('/(auth)/register')}>
+      <Text style={styles.link} onPress={() => router.push('/register')}>
         Pas encore de compte ? S'inscrire
       </Text>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

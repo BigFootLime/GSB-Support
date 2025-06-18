@@ -35,7 +35,7 @@ export default function DashboardScreen() {
     <View style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
         <Stack.Screen options={{ title: 'Dashboard' }} />
-        <Header />
+        <Header useLogo />
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Text style={styles.title}>
@@ -47,7 +47,7 @@ export default function DashboardScreen() {
           </Text>
 
           <View style={styles.cardRow}>
-            <Pressable onPress={() => router.push('./tickets')}>
+            <Pressable onPress={() => router.push('/tickets/tickets')}>
               <CustomCard
                 icon="mail-unread-outline"
                 color="#2563eb"

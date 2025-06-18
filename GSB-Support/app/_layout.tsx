@@ -1,3 +1,4 @@
+// ✅ app/_layout.tsx
 import { Slot, useSegments, useRouter } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { View, ActivityIndicator } from 'react-native';
@@ -10,13 +11,13 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
 
-  const isInApp = segments[0] === '(app)';
+  const isProtectedRoute = !segments[0]?.startsWith('(auth)');
 
   useEffect(() => {
-    if (!loading && !user && isInApp) {
+    if (!loading && !user && isProtectedRoute) {
       router.replace('/(auth)/login');
     }
-  }, [user, loading, isInApp]);
+  }, [user, loading, isProtectedRoute]);
 
   if (loading) {
     return (
@@ -29,8 +30,8 @@ export default function RootLayout() {
 
   return (
     <>
-      <Slot />
-      <Toast/>
+      <Slot /> {/* Rend la page courante */}
+      <Toast />
       <StatusBar style="light" />
     </>
   );

@@ -6,16 +6,25 @@ import {
   Animated,
   Easing,
   Image,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useRef, useState } from 'react';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function Header() {
+interface HeaderProps {
+  title?: string;
+  showBack?: boolean;
+  useLogo?: boolean;
+}
+
+export default function Header({ title, showBack = false, useLogo = false }: HeaderProps) {
   const { user, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const insets = useSafeAreaInsets();
 
   const toggleMenu = () => {
     if (showMenu) {
@@ -37,16 +46,31 @@ export default function Header() {
   };
 
   const goToProfile = () => {
-    setShowMenu(false); // Fermer le menu avant navigation
+    setShowMenu(false);
     router.push('/profile');
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-  source={require('@/assets/images/GSB_Logo_light_text.png')}
-  style={styles.logo}
-/>
+    <View style={[styles.container, { paddingTop: Platform.OS === 'android' ? insets.top + 10 : 10,
+ }]}>
+      <View style={styles.left}>
+        {showBack && (
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={28} color="#1e293b" />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <View style={styles.center}>
+        {useLogo ? (
+          <Image
+            source={require('@/assets/images/GSB_Logo_light_text.png')}
+            style={styles.logo}
+          />
+        ) : (
+          <Text style={styles.title}>{title}</Text>
+        )}
+      </View>
 
       <View style={styles.avatarWrapper}>
         <TouchableOpacity onPress={toggleMenu}>
@@ -81,29 +105,41 @@ export default function Header() {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    padding: 16,
-    paddingTop: 30,
+    paddingHorizontal: 16,
+    paddingBottom: 10,
     backgroundColor: '#f1f5f9',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
     position: 'relative',
-    zIndex: 1,
+    zIndex: 10,
   },
-  logo: {
-  width: "80%",
-  resizeMode: 'contain',
-},
+  left: {
+    flex: 1,
+  },
+  backButton: {
+    padding: 4,
+  },
+  center: {
+    flex: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1e293b',
   },
+  logo: {
+    height: 28,
+    resizeMode: 'contain',
+  },
   avatarWrapper: {
-    position: 'relative',
+    flex: 1,
     alignItems: 'flex-end',
+    position: 'relative',
   },
   avatar: {
     width: 40,
@@ -156,3 +192,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+

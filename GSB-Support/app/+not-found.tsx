@@ -1,7 +1,9 @@
-import { Link, Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 export default function NotFoundScreen() {
+  const router = useRouter();
+
   return (
     <>
       <Stack.Screen options={{ title: 'Page introuvable' }} />
@@ -12,15 +14,14 @@ export default function NotFoundScreen() {
           L'écran que vous cherchez est introuvable ou a été déplacé.
         </Text>
 
-        <Link href="/(tabs)/dashboard" asChild>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Retour à l'accueil</Text>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity style={styles.button} onPress={() => router.replace('/dashboard')}>
+          <Text style={styles.buttonText}>Retour à l'accueil</Text>
+        </TouchableOpacity>
       </View>
     </>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
