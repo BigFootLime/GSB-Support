@@ -1,5 +1,4 @@
-// ✅ app/_layout.tsx
-import { Slot, useSegments, useRouter } from 'expo-router';
+import { Stack, useSegments, useRouter } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { View, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -30,7 +29,12 @@ export default function RootLayout() {
 
   return (
     <>
-      <Slot /> {/* Rend la page courante */}
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right', 
+        }}
+      />
       <Toast />
       <StatusBar style="light" />
     </>
