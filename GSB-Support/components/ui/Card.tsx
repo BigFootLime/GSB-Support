@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface CustomCardProps {
@@ -19,18 +19,23 @@ export const CustomCard: React.FC<CustomCardProps> = ({ icon, color, title, valu
   );
 };
 
+const CARD_WIDTH = 150;
+const CARD_HEIGHT = 120;
+
 const styles = StyleSheet.create({
   card: {
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    flexBasis: '30%',
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.05,
     shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
   },
   cardTitle: {
     fontSize: 14,

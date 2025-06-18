@@ -36,6 +36,8 @@ const fadeAnim = useRef(new Animated.Value(1)).current;
   const newTickets = tickets.filter((t) => t.status === 'new');
   const inProgressTickets = tickets.filter((t) => t.status === 'in-progress');
   const resolvedTickets = tickets.filter((t) => t.status === 'resolved');
+  const closedTickets = tickets.filter((t) => t.status === 'closed');
+
 
   return (
     <View style={styles.root}>
@@ -52,34 +54,32 @@ const fadeAnim = useRef(new Animated.Value(1)).current;
             Voici un aperçu de vos tickets.
           </Text>
 
-          <View style={styles.cardRow}>
-            <Pressable onPress={() => router.push('/tickets/tickets')}>
-              <CustomCard
-                icon="mail-unread-outline"
-                color="#2563eb"
-                title="Nouveaux"
-                value={newTickets.length}
-              />
-            </Pressable>
-            <CustomCard
-              icon="time-outline"
-              color="#f59e0b"
-              title="En cours"
-              value={inProgressTickets.length}
-            />
-            <CustomCard
-              icon="checkmark-done-outline"
-              color="#10b981"
-              title="Résolus"
-              value={resolvedTickets.length}
-            />
-          </View>
+         <View style={styles.cardGrid}>
+            <View style={styles.cardRow}>
+              <Pressable onPress={() => router.push({ pathname: '/tickets/tickets', params: { status: 'new' } })}>
+                <CustomCard icon="mail-unread-outline" color="#2563eb" title="Nouveaux" value={newTickets.length} />
+              </Pressable>
 
-          <DashboardStats total={tickets.length} resolved={resolvedTickets.length} />
+              <Pressable onPress={() => router.push({ pathname: '/tickets/tickets', params: { status: 'in-progress' } })}>
+                <CustomCard icon="time-outline" color="#f59e0b" title="En cours" value={inProgressTickets.length} />
+              </Pressable>
+            </View>
+
+            <View style={styles.cardRow}>
+              <Pressable onPress={() => router.push({ pathname: '/tickets/tickets', params: { status: 'resolved' } })}>
+                <CustomCard icon="checkmark-done-outline" color="#10b981" title="Résolus" value={resolvedTickets.length} />
+              </Pressable>
+
+              <Pressable onPress={() => router.push({ pathname: '/tickets/tickets', params: { status: 'closed' } })}>
+                <CustomCard icon="lock-closed-outline" color="#64748b" title="Clôturés" value={closedTickets.length} />
+              </Pressable>
+            </View>
+          </View>
+        <DashboardStats total={tickets.length} resolved={resolvedTickets.length} />
           <View style={{ width: '100%', marginTop: 24 }}>
-  <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: '#1e293b' }}>
-    Activité récente
-  </Text>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: '#1e293b' }}>
+              Activité récente
+            </Text>
 
   {tickets.slice(0, 3).map((ticket) => (
     <Pressable
@@ -211,12 +211,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-    flexWrap: 'wrap',
-  },
+  cardGrid: {
+  width: '100%',
+  gap: 16,
+  alignItems: 'center',
+},
+cardRow: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  gap: 16,
+},
+
+
   footer: {
     marginTop: 32,
     alignItems: 'center',

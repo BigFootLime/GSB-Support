@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -18,7 +18,9 @@ import { updateTicketStatus, updateTicketPriority } from '@/hooks/useTicketDetai
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CustomPickerWithBadge } from '@/components/ui/CustomPicker';
 import Header from '@/components/layout/Header';
-import { Ticket } from '@/types/ticket'; // si tu as un fichier types
+import { Ticket } from '@/types/ticket';
+import { TicketComments } from '@/components/tickets/TicketComments';
+import { TicketCommentForm } from '@/components/tickets/TicketCommentForm';
 
 export default function TicketDetail() {
   const { id } = useLocalSearchParams();
@@ -28,18 +30,32 @@ export default function TicketDetail() {
   const ticket: Ticket | undefined = tickets.find((t) => t.id === validId);
 
   const [updating, setUpdating] = useState(false);
-  const [status, setStatus] = useState<Ticket['status']>(ticket?.status ?? 'new');
-  const [priority, setPriority] = useState<Ticket['priority']>(ticket?.priority ?? 'low');
+  const [status, setStatus] = useState<Ticket['status']>('new');
+  const [priority, setPriority] = useState<Ticket['priority']>('low');
 
   const {
     control,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
-      status: status,
-      priority: priority,
+      status: 'new',
+      priority: 'low',
     },
   });
+
+  // 🧠 Synchronise les données quand le ticket arrive
+  useEffect(() => {
+    if (ticket) {
+      setStatus(ticket.status);
+      setPriority(ticket.priority);
+
+      reset({
+        status: ticket.status,
+        priority: ticket.priority,
+      });
+    }
+  }, [ticket, reset]);
 
   const handleStatusChange = async (newStatus: Ticket['status']) => {
     if (!ticket) return;
@@ -209,6 +225,9 @@ export default function TicketDetail() {
               </Text>
             </>
           )}
+
+          <TicketComments ticketId={ticket.id} />
+          <TicketCommentForm ticketId={ticket.id} />
         </View>
 
         {updating && <ActivityIndicator style={{ marginTop: 24 }} />}

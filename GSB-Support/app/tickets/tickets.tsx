@@ -13,31 +13,36 @@ import { useTickets } from '@/hooks/useTickets';
 import { Ionicons } from '@expo/vector-icons';
 import { Badge } from '@/components/ui/Badge';
 import Header from '@/components/layout/Header';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter,useLocalSearchParams  } from 'expo-router';
 import { CustomPickerWithBadge } from '@/components/ui/CustomPicker';
 
 export default function NewTicketsScreen() {
   const { tickets } = useTickets();
   const newTickets = tickets.filter((t) => t.status === 'new');
   const router = useRouter();
+  const { status } = useLocalSearchParams();
 
   const [priority, setPriority] = useState('');
   const [sortDate, setSortDate] = useState('desc');
   const [search, setSearch] = useState('');
   const [filterVisible, setFilterVisible] = useState(false);
 
-  const filteredTickets = newTickets
-    .filter((t) =>
-      search.trim() !== ''
-        ? t.title.toLowerCase().includes(search.toLowerCase())
-        : true
-    )
-    .filter((t) => (priority ? t.priority === priority : true))
-    .sort((a, b) =>
-      sortDate === 'desc'
-        ? b.createdAt.seconds - a.createdAt.seconds
-        : a.createdAt.seconds - b.createdAt.seconds
-    );
+  const filteredByStatus = status
+  ? tickets.filter((t) => t.status === status)
+  : tickets;
+
+  const filteredTickets = filteredByStatus
+  .filter((t) =>
+    search.trim() !== ''
+      ? t.title.toLowerCase().includes(search.toLowerCase())
+      : true
+  )
+  .filter((t) => (priority ? t.priority === priority : true))
+  .sort((a, b) =>
+    sortDate === 'desc'
+      ? b.createdAt.seconds - a.createdAt.seconds
+      : a.createdAt.seconds - b.createdAt.seconds
+  );
 
   const handleTicketPress = (id: string) => {
     router.push({
@@ -49,7 +54,8 @@ export default function NewTicketsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Stack.Screen options={{ title: 'Tickets' }} />
-      <Header title="Tickets Nouveaux" showBack />
+      <Header title={`Tickets ${status || 'Nouveaux'}`} showBack />
+
 
       {/* Barre de recherche + filtre */}
       <View style={styles.searchBar}>

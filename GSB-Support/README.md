@@ -1,50 +1,110 @@
-# Welcome to your Expo app 👋
+# 📲 GSB Support
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile de support technique pour les employés de **Galaxy Swiss Bourdin (GSB)**.  
+Permet de **créer, visualiser et suivre des tickets** en temps réel.
 
-## Get started
+## ✨ Fonctionnalités principales
 
-1. Install dependencies
+- 🔐 Authentification Firebase (inscription, connexion, logout)
+- 📝 Création de tickets avec :
+  - Titre
+  - Description
+  - Priorité (Faible, Moyenne, Haute, Critique)
+  - Catégorie (Hardware, Software, Réseau, Autre)
+  - Date d’intervention souhaitée
+- 🎨 UI professionnelle (bleu/gris), responsive
+- 📋 Visualisation des tickets par statut : Nouveaux, En cours, Résolus
+- 📁 Détail complet d’un ticket avec animation de transition
+- 📦 Stockage des données via **Firebase Firestore**
+- 📷 Ajout d’images avec `expo-image-picker` *(à venir)*
+- 🔔 Toasts de validation/erreur intégrés (`react-native-toast-message`)
+- 🧭 Navigation fluide avec Expo Router (`Tabs`, `Stack`, `Modal`)
+- 📱 Compatible Android (iOS à venir)
 
-   ```bash
-   npm install
-   ```
+## 🧱 Stack technique
 
-2. Start the app
+| Frontend | Backend / BDD | Outils |
+|----------|----------------|--------|
+| React Native + Expo | Firebase Auth + Firestore | VSCode |
+| TypeScript || Expo Router |
+| React Hook Form + Zod | | React Query *(prochainement)* |
 
-   ```bash
-   npx expo start
-   ```
+## 📁 Structure du projet
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+GSB-Support/
+├── app/                # Routes Expo Router
+│   ├── (auth)/         # Login / Register
+│   ├── (tabs)/         # Dashboard / Tickets (via Tabs)
+│   └── ticket/[id].tsx # Détail d’un ticket
+├── components/
+│   ├── ui/             # Composants réutilisables (Input, Button, Card, Badge)
+│   └── tickets/        # TicketForm, CustomPicker, etc.
+├── hooks/              # useAuth, useTickets
+├── lib/                # firebase.ts, zod schemas, etc.
+├── types/              # Types globaux
+└── app.config.ts       # Config Expo
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🚀 Lancer le projet
 
-## Learn more
+### 1. Cloner le repo
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+git clone https://github.com/BigFootLime/GSB-Support.git
+cd GSB-Support
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 2. Installer les dépendances
 
-## Join the community
+```bash
+npm install
+```
 
-Join our community of developers creating universal apps.
+### 3. Lancer l’app Expo
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start
+```
+
+> 📱 Testé avec Expo Go sur Android
+
+## 🛠 Configuration Firebase
+
+Crée un projet Firebase, puis configure :
+
+- 🔐 **Authentication** > Email/Password
+- 🔥 **Firestore Database** > En mode test (dev)
+- ☁️ **Storage** *(optionnel pour les images)*
+
+Dans `lib/firebase.ts`, place ta config Firebase :
+
+```ts
+export const firebaseConfig = {
+  apiKey: '...',
+  authDomain: '...',
+  projectId: '...',
+  storageBucket: '...',
+  messagingSenderId: '...',
+  appId: '...'
+};
+```
+
+## 🧪 À venir
+
+- [ ] Upload d’images dans les tickets (📷)
+- [ ] Notifications push pour les mises à jour
+- [ ] Dashboard admin pour suivi global
+- [ ] Filtres par utilisateur
+- [ ] Auth multi-rôle (Utilisateur / Admin)
+
+## 👨‍💻 Développé par
+
+**Keenan Martin**  
+Développeur Full Stack chez **Croix Rousse Précision**  
+📍 Caluire-et-Cuire, France
+
+## 📝 Licence
+
+Ce projet est un prototype interne destiné à la gestion du support technique GSB.  
+Licence privée. Ne pas redistribuer sans autorisation.
