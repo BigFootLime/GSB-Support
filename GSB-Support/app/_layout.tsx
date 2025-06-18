@@ -6,19 +6,22 @@ import { useEffect } from 'react';
 import Toast from 'react-native-toast-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-
 export default function RootLayout() {
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
-  const isProtectedRoute = !segments[0]?.startsWith('(auth)');
+  const isInAuthGroup = segments[0] === '(auth)';
 
   useEffect(() => {
-    if (!loading && !user && isProtectedRoute) {
-      router.replace('/(auth)/login');
+    if (!loading) {
+      if (!user && !isInAuthGroup) {
+        router.replace('/(auth)/login');
+      } else if (user && isInAuthGroup) {
+        router.replace('/dashboard');
+      }
     }
-  }, [user, loading, isProtectedRoute]);
+  }, [user, loading, segments]);
 
   if (loading) {
     return (
@@ -30,17 +33,15 @@ export default function RootLayout() {
   }
 
   return (
-    <>
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right', 
+          animation: 'slide_from_right',
         }}
       />
       <Toast />
       <StatusBar style="light" />
-      </GestureHandlerRootView>
-    </>
+    </GestureHandlerRootView>
   );
 }

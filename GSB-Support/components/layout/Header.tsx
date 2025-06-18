@@ -88,8 +88,13 @@ export default function Header({ title, showBack = false, useLogo = false }: Hea
             <Text style={styles.userEmail}>{user?.email}</Text>
 
             <TouchableOpacity style={styles.menuItem} onPress={goToProfile}>
-              <Ionicons name="settings-outline" size={18} color="#334155" style={styles.menuIcon} />
+              <Ionicons name="person-outline" size={18} color="#334155" style={styles.menuIcon} />
               <Text style={styles.menuText}>Profil</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings')}>
+              <Ionicons name="settings-outline" size={18} color="#334155" style={styles.menuIcon} />
+              <Text style={styles.menuText}>Paramètres</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.logoutButton} onPress={logout}>

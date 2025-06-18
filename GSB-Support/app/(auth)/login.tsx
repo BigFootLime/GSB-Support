@@ -5,9 +5,10 @@ import { z } from 'zod';
 import { useRouter } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CustomTextInput } from '@/components/ui/Input';
 import { CustomButton } from '@/components/ui/Button';
+import { useAuth } from '@/hooks/useAuth';
 
 const LoginSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -18,6 +19,7 @@ type LoginForm = z.infer<typeof LoginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
+   const { user, loading } = useAuth();
   const [authError, setAuthError] = useState('');
 
   const {
@@ -27,12 +29,17 @@ export default function LoginScreen() {
   } = useForm<LoginForm>({
     resolver: zodResolver(LoginSchema),
   });
+  
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/dashboard');
+    }
+  }, [user, loading]);
 
   const onSubmit = async (data: LoginForm) => {
     setAuthError('');
     try {
       await signInWithEmailAndPassword(auth, data.email.trim(), data.password);
-      router.replace('/dashboard');
     } catch (err: any) {
       console.error('Firebase Auth Error:', err.code);
       switch (err.code) {
@@ -72,7 +79,7 @@ export default function LoginScreen() {
             onChangeText={onChange}
             placeholder="exemple@gsb.fr"
             keyboardType="email-address"
-           
+            autoCapitalize="none"
             error={errors.email?.message}
           />
         )}
